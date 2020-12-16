@@ -246,6 +246,12 @@ void TreeModel::syncWith(TreeModel* model) {
         }
 
         auto syncItem = rootItem->getNodeById(item->getId());
+        if (syncItem && syncItem->isRemoved() && !item->isRemoved()) {
+            item->removeRecursively();
+            model->endResetModel();
+            continue;
+        }
+
         if (syncItem && !syncItem->isRemoved()) {
             syncItem->setData(0, item->data(0));
             if (!syncItem->isRemoved() && item->isRemoved()) {

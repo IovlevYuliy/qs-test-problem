@@ -85,4 +85,5 @@ void MainWindow::on_resetButton_clicked() {
 void MainWindow::on_saveButton_clicked() {
     dbModel->syncWith(cacheModel);
     ui->dbTreeView->expandAll();
+    ui->cacheTreeView->expandAll();
 }
