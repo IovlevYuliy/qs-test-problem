@@ -240,18 +240,13 @@ QVector<TreeItem*> TreeModel::getItems() const {
 void TreeModel::syncWith(TreeModel* model) {
     QVector<TreeItem*> treeItems = model->getItems();
     beginResetModel();
+    // sync current model with the given model
     for (auto item: treeItems) {
         if (item->getId() == model->getRoot()->getId()) {
             continue;
         }
 
         auto syncItem = rootItem->getNodeById(item->getId());
-        if (syncItem && syncItem->isRemoved() && !item->isRemoved()) {
-            item->removeRecursively();
-            model->endResetModel();
-            continue;
-        }
-
         if (syncItem && !syncItem->isRemoved()) {
             syncItem->setData(0, item->data(0));
             if (!syncItem->isRemoved() && item->isRemoved()) {
@@ -265,6 +260,16 @@ void TreeModel::syncWith(TreeModel* model) {
         }
     }
     endResetModel();
+
+    // update given model (some nodes should be deleted)
+    model->beginResetModel();
+    for (auto item : treeItems) {
+        auto syncItem = rootItem->getNodeById(item->getId());
+        if (syncItem && syncItem->isRemoved() && !item->isRemoved()) {
+            item->removeRecursively();
+        }
+    }
+    model->endResetModel();
 }
 
 void Delegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const {
